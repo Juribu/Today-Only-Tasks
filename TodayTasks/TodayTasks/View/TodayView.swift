@@ -24,6 +24,7 @@ struct TodayView: View {
                             ForEach(viewModel.activeTasks) { task in
                                 ActiveTaskRowView(task: task)
                                     .onTapGesture {
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                         viewModel.toggleComplete(task)
                                     }
                                     .listRowSeparator(.hidden)
@@ -43,6 +44,7 @@ struct TodayView: View {
                                 ForEach(viewModel.completedTasks) { task in
                                     CompletedTaskRowView(task: task)
                                         .onTapGesture {
+                                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                             viewModel.toggleComplete(task)
                                         }
                                         .listRowSeparator(.hidden)

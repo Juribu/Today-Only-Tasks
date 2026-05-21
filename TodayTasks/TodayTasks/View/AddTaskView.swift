@@ -34,9 +34,9 @@ struct AddTaskView: View {
                     isCompleted: false
                 )
                 viewModel.add(task)
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 dismiss()
             }
-            .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
         }
         .padding(20)
     }

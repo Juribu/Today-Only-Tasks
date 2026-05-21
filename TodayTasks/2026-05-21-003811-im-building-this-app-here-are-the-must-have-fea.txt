@@ -895,5 +895,104 @@
 
 ※ recap: Building TodayTasks SwiftUI app; just finished AddTaskView (title field, time picker default 11:59, blue AddTaskButton) and swipe-to-delete with hidden row separators in TodayView. Next: test in the simulator and verify the seed-then-load persistence flow. (disable recaps in /config)
 
+------------- Notification ------------------
+╭─── Claude Code v2.1.146 ─────────────────────────────────────────────────────╮
+│                                                    │ Tips for getting        │
+│                  Welcome back Jay!                 │ started                 │
+│                                                    │ Run /init to create a … │
+│                      ▗ ▗   ▖ ▖                     │ ─────────────────────── │
+│                                                    │ What's new              │
+│                        ▘▘ ▝▝                       │ Renamed `/simplify` to… │
+│  Opus 4.7 · Claude Pro · jidong.1272@gmail.com's   │ Auto mode no longer su… │
+│  Organization                                      │ Fixed Windows PowerShe… │
+│   ~/Desktop/TakeHome/Today-Only-Tasks/TodayTasks   │ /release-notes for more │
+╰──────────────────────────────────────────────────────────────────────────────╯
 
+❯ /clear                                                                        
+  ⎿  (no content)
+
+❯ add local notifications for when task is about to expire in 2 hours           
+
+  Searched for 2 patterns, read 3 files, listed 1 directory (ctrl+o to expand)
+
+⏺ Now I'll create a NotificationManager and wire it into the ViewModel.
+
+⏺ Write(TodayTasks/Notifications/NotificationManager.swift)
+  ⎿  Wrote 68 lines to TodayTasks/Notifications/NotificationManager.swift
+      1 //
+      2 //  NotificationManager.swift
+      3 //  TodayTasks
+      4 //
+      5 //  Created by Jay on 5/21/26.
+      6 //
+      7 
+      8 import Foundation
+      9 import UserNotifications
+     … +61 lines (ctrl+o to expand)
+
+⏺ Update(TodayTasks/Root/TodayTasksApp.swift)
+  ⎿  Added 5 lines, removed 1 line
+      10  @main
+      11  struct TodayTasksApp: App {
+      12      @StateObject private var viewModel = TodayViewModel(store: 
+          FileTaskStore())
+      13 -                                                               
+      13 +                                                               
+      14 +    init() {                                                   
+      15 +        NotificationManager.shared.requestAuthorization()      
+      16 +    }                                                          
+      17 +                                                               
+      18      var body: some Scene {
+      19          WindowGroup {
+      20              ContentView(viewModel: viewModel)
+
+⏺ Update(TodayTasks/ViewModel/TodayViewModel.swift)
+  ⎿  Added 3 lines
+      21              print("Failed to load tasks: \(error)")
+      22              self.tasks = []
+      23          }
+      24 +        for task in tasks {                                    
+      25 +            NotificationManager.shared.scheduleExpirationRemind
+         +er(for: task)                                                  
+      26 +        }                                                      
+      27      }
+      28  
+      29      var activeTasks: [Task] {
+
+⏺ Update(TodayTasks/ViewModel/TodayViewModel.swift)
+  ⎿  Added 7 lines
+      68      func add(_ task: Task) {
+      69          tasks.append(task)
+      70          saveToStore()
+      71 +        NotificationManager.shared.scheduleExpirationReminder(f
+         +or: task)                                                      
+      72      }
+      73  
+      74      func delete(_ task: Task) {
+      75          tasks.removeAll { $0.id == task.id }
+      76          saveToStore()
+      77 +        NotificationManager.shared.cancelExpirationReminder(for
+         +: task)                                                        
+      78      }
+      79  
+      80      func toggleComplete(_ task: Task) {
+     ...
+      83          }
+      84          tasks[index].isCompleted.toggle()
+      85          saveToStore()
+      86 +        if tasks[index].isCompleted {                          
+      87 +            NotificationManager.shared.cancelExpirationReminder
+         +(for: tasks[index])                                            
+      88 +        } else {                                               
+      89 +            NotificationManager.shared.scheduleExpirationRemind
+         +er(for: tasks[index])                                          
+      90 +        }                                                      
+      91      }
+      92  }
+
+⏺ Bash(xcodebuild -project TodayTasks.xcodeproj -scheme TodayTasks -destination
+      'platform=iOS Simulator,name=iPhone 16' -quiet build 2>&1 | tail -20)
+  ⎿  Interrupted · What should Claude do instead?
+
+※ recap: Goal: add a celebration animation when completing a task. Added a confetti CelebrationView and wired it to active-row taps in TodayView, then fixed two compile errors. Next: build and verify the burst looks right. (disable recaps in /config)
 

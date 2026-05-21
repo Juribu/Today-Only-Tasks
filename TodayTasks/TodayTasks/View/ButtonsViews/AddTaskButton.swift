@@ -17,7 +17,7 @@ struct AddTaskButton: View {
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
-                .background(Color.blue)
+                .background(Color.button)
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
     }

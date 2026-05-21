@@ -16,7 +16,7 @@ struct AddButton: View {
                 .font(.system(size: 24, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 56, height: 56)
-                .background(Color.accentColor)
+                .background(Color.button)
                 .clipShape(Circle())
                 .shadow(radius: 4, y: 2)
         }

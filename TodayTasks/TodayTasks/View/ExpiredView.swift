@@ -13,7 +13,7 @@ struct ExpiredView: View {
     var body: some View {
         NavigationStack {
             if viewModel.expiredTasks.isEmpty {
-                Text("empty")
+                Text("Wow Perfect Record! Keep it Up!!!")
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .navigationTitle("Expired")

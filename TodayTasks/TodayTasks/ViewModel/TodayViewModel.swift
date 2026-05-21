@@ -21,6 +21,9 @@ final class TodayViewModel: ObservableObject {
             print("Failed to load tasks: \(error)")
             self.tasks = []
         }
+        for task in tasks {
+            NotificationManager.shared.scheduleExpirationReminder(for: task)
+        }
     }
 
     var activeTasks: [Task] {
@@ -65,11 +68,13 @@ final class TodayViewModel: ObservableObject {
     func add(_ task: Task) {
         tasks.append(task)
         saveToStore()
+        NotificationManager.shared.scheduleExpirationReminder(for: task)
     }
 
     func delete(_ task: Task) {
         tasks.removeAll { $0.id == task.id }
         saveToStore()
+        NotificationManager.shared.cancelExpirationReminder(for: task)
     }
 
     func toggleComplete(_ task: Task) {
@@ -78,5 +83,10 @@ final class TodayViewModel: ObservableObject {
         }
         tasks[index].isCompleted.toggle()
         saveToStore()
+        if tasks[index].isCompleted {
+            NotificationManager.shared.cancelExpirationReminder(for: tasks[index])
+        } else {
+            NotificationManager.shared.scheduleExpirationReminder(for: tasks[index])
+        }
     }
 }
