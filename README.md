@@ -8,12 +8,11 @@
 4. Built the ViewModel and the Business logic
 5. Laid out the basic UI
 6. Hook up business logic to UI
-7. 
 ## Optional enhancements
-8. Set up noification for firing notifs before the end of day
-9. Enhance UI: Haptic feedback
-10. Celebration for competion
-11. Polish UI such as displaying dates, and "expiring soon" badge and expiration time
+7. Set up noification for firing notifs before the end of day
+8. Enhance UI: Haptic feedback
+9. Celebration for competion
+10. Polish UI such as displaying dates, and "expiring soon" badge and expiration time
 
 # Key decisions or tradeoffs
 - I chosed Codable JSON local file storage for persistence because the required minimum deployment is iOS 16, this ruled out SwiftData which required iOS 17, between Codable JSON and CoreData, I went with file because CoreData's complexity and overhead would be an overkill for a single feature app, if I spend more time on this, I would add swiftData with #available check for iOS 17+ while keeping file store for iOS 16 users.
