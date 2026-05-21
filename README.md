@@ -27,7 +27,7 @@
 # Anything you got stuck on and how you worked through it
 - I got stuck when XCode threw me an error related @StateObject ownership, I instantiated the viewModel in the App file, but I also delcared it as a private @StateObject in root contentView, which XCode would instantiated a second time, I quickly realized that it should be a non private @ObservedObject in contentView, since it was already instantiated upstream in the Root App. So I resolved it with the rule of making that viewModel a @StateObject in the App file for single ownership and injecting it everywhere as @ObservedObject.
 
-# AI Usage Summary
+# AI Usage Summary ([conversation history]([url](https://github.com/Juribu/Today-Only-Tasks/blob/main/TodayTasks/CluadeChatCombined.txt)))
 I defined the architecture and made key decisions myself, I my prompts were mostly structured like this:
 
 Write ...., I already have ... so don't worry about ..., include:
