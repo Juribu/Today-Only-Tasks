@@ -996,3 +996,165 @@
 
 ※ recap: Goal: add a celebration animation when completing a task. Added a confetti CelebrationView and wired it to active-row taps in TodayView, then fixed two compile errors. Next: build and verify the burst looks right. (disable recaps in /config)
 
+
+---------------- Haptic feedback ------------------
+╭─── Claude Code v2.1.146 ─────────────────────────────────────────────────────╮
+│                                                    │ Tips for getting        │
+│                  Welcome back Jay!                 │ started                 │
+│                                                    │ Run /init to create a … │
+│                      ▗ ▗   ▖ ▖                     │ ─────────────────────── │
+│                                                    │ What's new              │
+│                        ▘▘ ▝▝                       │ Renamed `/simplify` to… │
+│  Opus 4.7 · Claude Pro · jidong.1272@gmail.com's   │ Auto mode no longer su… │
+│  Organization                                      │ Fixed Windows PowerShe… │
+│   ~/Desktop/TakeHome/Today-Only-Tasks/TodayTasks   │ /release-notes for more │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+❯ /clear                                                                        
+  ⎿  (no content)
+
+❯ add haptic feedback when user taps the task                                   
+
+  Searched for 1 pattern, read 1 file, listed 1 directory (ctrl+o to expand)
+
+⏺ Update(TodayTasks/View/TodayView.swift)
+  ⎿  Added 1 line
+      24                              ForEach(viewModel.activeTasks) { ta
+          sk in
+      25                                  ActiveTaskRowView(task: task)
+      26                                      .onTapGesture {
+      27 +                                        UINotificationFeedbackG
+         +enerator().notificationOccurred(.success)                      
+      28                                          viewModel.toggleComplet
+          e(task)
+      29                                      }
+      30                                      .listRowSeparator(.hidden)
+
+⏺ Update(TodayTasks/View/TodayView.swift)
+  ⎿  Added 1 line
+      44                                  ForEach(viewModel.completedTask
+          s) { task in
+      45                                      CompletedTaskRowView(task: 
+          task)
+      46                                          .onTapGesture {
+      47 +                                            UIImpactFeedbackGen
+         +erator(style: .light).impactOccurred()                         
+      48                                              viewModel.toggleCom
+          plete(task)
+      49                                          }
+      50                                          .listRowSeparator(.hidd
+          en)
+
+⏺ Added haptics in TodayView.swift: a .success notification haptic when
+  completing an active task, and a light impact when un-completing. UIKit is
+  already transitively available via SwiftUI, so no new import needed.
+
+✻ Baked for 24s
+
+※ recap: You're adding haptic feedback to task taps in TodayView.swift — success haptic on complete, light impact on un-complete. Next: decide if you want to keep the success notification or switch both to a medium impact.
+
+
+------- celebration animation on complete task -------------
+╭─── Claude Code v2.1.146 ─────────────────────────────────────────────────────╮
+│                                                    │ Tips for getting        │
+│                  Welcome back Jay!                 │ started                 │
+│                                                    │ Run /init to create a … │
+│                      ▗ ▗   ▖ ▖                     │ ─────────────────────── │
+│                                                    │ What's new              │
+│                        ▘▘ ▝▝                       │ Renamed `/simplify` to… │
+│  Opus 4.7 · Claude Pro · jidong.1272@gmail.com's   │ Auto mode no longer su… │
+│  Organization                                      │ Fixed Windows PowerShe… │
+│   ~/Desktop/TakeHome/Today-Only-Tasks/TodayTasks   │ /release-notes for more │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+❯ /clear                                                                        
+  ⎿  (no content)
+
+❯ add a view for celebration once user taps task to complete that toggles once  
+  when user taps                                                                
+
+  Searched for 1 pattern, read 1 file, listed 1 directory (ctrl+o to expand)
+
+⏺ Write(TodayTasks/View/CelebrationView.swift)
+  ⎿  Wrote 54 lines to TodayTasks/View/CelebrationView.swift
+       1 //
+       2 //  CelebrationView.swift
+       3 //  TodayTasks
+       4 //
+       5 //  Created by Jay on 5/21/26.
+       6 //
+       7 
+       8 import SwiftUI
+       9 
+      10 struct CelebrationView: View {
+     … +47 lines (ctrl+o to expand)
+
+⏺ Now wire it into TodayView, triggering only when a tap completes (not
+  uncompletes) a task.
+
+⏺ Update(TodayTasks/View/TodayView.swift)
+  ⎿  Added 1 line
+      10  struct TodayView: View {
+      11      @ObservedObject var viewModel: TodayViewModel
+      12      @State private var isShowingAddSheet = false
+      13 +    @State private var isShowingCelebration = false            
+      14  
+      15      var body: some View {
+      16          NavigationStack {
+
+⏺ Update(TodayTasks/View/TodayView.swift)
+  ⎿  Added 1 line
+      27                                      .onTapGesture {
+      28                                          UIImpactFeedbackGenerat
+          or(style: .light).impactOccurred()
+      29                                          viewModel.toggleComplet
+          e(task)
+      30 +                                        isShowingCelebration = 
+         +true                                                           
+      31                                      }
+      32                                      .listRowSeparator(.hidden)
+      33                                      .swipeActions(edge: .traili
+          ng, allowsFullSwipe: true) {
+
+⏺ Update(TodayTasks/View/TodayView.swift)
+  ⎿  Added 6 lines
+      78                      }
+      79                  }
+      80              }
+      81 +            .overlay {                                         
+      82 +                if isShowingCelebration {                      
+      83 +                    CelebrationView(isShowing: $isShowingCelebr
+         +ation)                                                         
+      84 +                        .transition(.opacity)                  
+      85 +                }                                              
+      86 +            }                                                  
+      87              .navigationTitle("Today")
+      88              .sheet(isPresented: $isShowingAddSheet) {
+      89                  AddTaskView(viewModel: viewModel)
+
+⏺ Need to register the new file in the Xcode project.
+
+  Searched for 3 patterns, listed 1 directory (ctrl+o to expand)
+
+⏺ Project uses synchronized groups, so the new file will auto-register. Done.
+
+  Added CelebrationView.swift — a checkmark + "Nice work!" overlay that springs
+  in, holds briefly, then fades out — and triggered it from TodayView.swift:28
+  when an active task is tapped. It only fires on the active-row tap (not when
+  un-completing a task in the Completed section), and auto-resets via the
+  isShowing binding so it can fire again on the next tap.
+
+✻ Baked for 1m 7s
+
+❯ what does .allowsHitTesting(false) do                                         
+
+⏺ .allowsHitTesting(false) makes the view (and its subviews) ignore touch input
+  — taps pass straight through to whatever is behind it.
+
+  In CelebrationView, it's on the outer ZStack (which includes the dimmed
+  background and the card). Without it, the full-screen Color.black.opacity(...)
+   would intercept taps for the ~1.15s the celebration is visible, blocking the
+  user from tapping other tasks. With it on, the celebration is purely visual
+  and the list underneath stays interactive.
+
+✻ Cogitated for 5s

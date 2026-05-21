@@ -10,6 +10,7 @@ import SwiftUI
 struct TodayView: View {
     @ObservedObject var viewModel: TodayViewModel
     @State private var isShowingAddSheet = false
+    @State private var isShowingCelebration = false
 
     var body: some View {
         NavigationStack {
@@ -26,6 +27,7 @@ struct TodayView: View {
                                     .onTapGesture {
                                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                         viewModel.toggleComplete(task)
+                                        isShowingCelebration = true
                                     }
                                     .listRowSeparator(.hidden)
                                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -74,6 +76,12 @@ struct TodayView: View {
                         .padding(.trailing, 20)
                         .padding(.bottom, 20)
                     }
+                }
+            }
+            .overlay {
+                if isShowingCelebration {
+                    CelebrationView(isShowing: $isShowingCelebration)
+                        .transition(.opacity)
                 }
             }
             .navigationTitle("Today")
