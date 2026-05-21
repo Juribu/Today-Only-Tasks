@@ -12,6 +12,12 @@ struct TodayView: View {
     @State private var isShowingAddSheet = false
     @State private var isShowingCelebration = false
 
+    private var todayDateString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMM d"
+        return formatter.string(from: Date())
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -23,7 +29,7 @@ struct TodayView: View {
                     List {
                         Section {
                             ForEach(viewModel.activeTasks) { task in
-                                ActiveTaskRowView(task: task)
+                                ActiveTaskRowView(task: task, isExpiringSoon: viewModel.isExpiringSoon(task))
                                     .onTapGesture {
                                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                         viewModel.toggleComplete(task)
@@ -85,6 +91,16 @@ struct TodayView: View {
                 }
             }
             .navigationTitle("Today")
+            .safeAreaInset(edge: .top, spacing: 0) {
+                HStack {
+                    Text(todayDateString)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 8)
+            }
             .sheet(isPresented: $isShowingAddSheet) {
                 AddTaskView(viewModel: viewModel)
                     .presentationDetents([.height(260)])

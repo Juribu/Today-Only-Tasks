@@ -25,7 +25,7 @@ struct ExpiredView: View {
                             .foregroundStyle(.secondary)
 
                         ForEach(viewModel.expiredToday) { task in
-                            ExpiredTaskRowView(task: task)
+                            ExpiredTaskRowView(task: task, isPreviousDay: false)
                         }
 
                         Text("Previous Days")
@@ -34,7 +34,7 @@ struct ExpiredView: View {
                             .padding(.top, 16)
 
                         ForEach(viewModel.expiredPreviousDays) { task in
-                            ExpiredTaskRowView(task: task)
+                            ExpiredTaskRowView(task: task, isPreviousDay: true)
                         }
                     }
                     .padding(.horizontal, 16)

@@ -9,14 +9,29 @@ import SwiftUI
 
 struct ExpiredTaskRowView: View {
     let task: Task
+    let isPreviousDay: Bool
+
+    private var expirationText: String {
+        if isPreviousDay {
+            return "Expired Previous Days"
+        }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        return "Expired At \(formatter.string(from: task.expireTime))"
+    }
 
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "xmark.circle")
                 .font(.title2)
                 .foregroundStyle(.gray)
-            Text(task.title)
-                .foregroundStyle(.gray)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(task.title)
+                    .foregroundStyle(.gray)
+                Text(expirationText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             Spacer()
         }
         .padding(.horizontal, 16)
@@ -33,7 +48,8 @@ struct ExpiredTaskRowView: View {
         task: Task(
             title: "Call dentist",
             expireTime: Date().addingTimeInterval(-3600)
-        )
+        ),
+        isPreviousDay: false
     )
     .padding()
 }

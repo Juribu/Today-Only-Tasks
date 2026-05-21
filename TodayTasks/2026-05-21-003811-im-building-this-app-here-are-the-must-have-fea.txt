@@ -1158,3 +1158,367 @@
   and the list underneath stays interactive.
 
 ✻ Cogitated for 5s
+
+
+
+----------- Minor UI modifications ---------------
+╭─── Claude Code v2.1.146 ─────────────────────────────────────────────────────╮
+│                                                    │ Tips for getting        │
+│                  Welcome back Jay!                 │ started                 │
+│                                                    │ Run /init to create a … │
+│                      ▗ ▗   ▖ ▖                     │ ─────────────────────── │
+│                                                    │ What's new              │
+│                        ▘▘ ▝▝                       │ Renamed `/simplify` to… │
+│  Opus 4.7 · Claude Pro · jidong.1272@gmail.com's   │ Auto mode no longer su… │
+│  Organization                                      │ Fixed Windows PowerShe… │
+│   ~/Desktop/TakeHome/Today-Only-Tasks/TodayTasks   │ /release-notes for more │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+❯ /clear                                                                        
+  ⎿  (no content)
+
+❯ for activateTaskRow, make a vstack of title of task, and a red background red 
+   text label saying expires in two hours, add a property in VM isExpiringSoon  
+  to check.                                                                     
+
+  Searched for 1 pattern, read 2 files (ctrl+o to expand)
+
+⏺ Update(TodayTasks/ViewModel/TodayViewModel.swift)
+  ⎿  Added 6 lines
+      57          expiredTasks.filter { !Calendar.current.isDateInToday($
+          0.createdTime) }
+      58      }
+      59  
+      60 +    func isExpiringSoon(_ task: Task) -> Bool {                
+      61 +        let now = Date()                                       
+      62 +        guard task.expireTime > now else { return false }      
+      63 +        return task.expireTime.timeIntervalSince(now) <= 2 * 60
+         + * 60                                                          
+      64 +    }                                                          
+      65 +                                                               
+      66      func saveToStore() {
+      67          do {
+      68              try store.save(tasks)
+
+⏺ Now let me check how ActiveTaskRowView is used so I know whether to pass
+  isExpiringSoon in or hold the VM:
+
+  Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+⏺ Bash(sed -n '20,35p' /Users/jay/Desktop/TakeHome/Today-Only-Tasks/TodayTasks/T
+      odayTasks/View/TodayView.swift)
+  ⎿                          .foregroundStyle(.secondary)
+                             .frame(maxWidth: .infinity, maxHeight: .infini
+     ty)
+     … +15 lines (ctrl+o to expand)
+
+⏺ Write(TodayTasks/View/TaskRows/ActiveTaskRowView.swift)
+  ⎿  Added 18 lines, removed 3 lines
+       9  
+      10  struct ActiveTaskRowView: View {
+      11      let task: Task
+      12 +    let isExpiringSoon: Bool                                   
+      13  
+      14      var body: some View {
+      15          HStack(spacing: 12) {
+      16              Image(systemName: "circle")
+      17                  .font(.title2)
+      18                  .foregroundStyle(.primary)
+      18 -            Text(task.title)                                   
+      19 -                .foregroundStyle(.primary)                     
+      19 +            VStack(alignment: .leading, spacing: 4) {          
+      20 +                Text(task.title)                               
+      21 +                    .foregroundStyle(.primary)                 
+      22 +                if isExpiringSoon {                            
+      23 +                    Text("Expires in two hours")               
+      24 +                        .font(.caption)                        
+      25 +                        .foregroundStyle(.white)               
+      26 +                        .padding(.horizontal, 8)               
+      27 +                        .padding(.vertical, 4)                 
+      28 +                        .background(                           
+      29 +                            RoundedRectangle(cornerRadius: 6)  
+      30 +                                .fill(Color.red)               
+      31 +                        )                                      
+      32 +                }                                              
+      33 +            }                                                  
+      34              Spacer()
+      35          }
+      36          .padding(.horizontal, 16)
+     ...
+      44  
+      45  #Preview {
+      46      ActiveTaskRowView(
+      33 -        task: Task(title: "Buy groceries", expireTime: Date().a
+         -ddingTimeInterval(3600))                                       
+      47 +        task: Task(title: "Buy groceries", expireTime: Date().a
+         +ddingTimeInterval(3600)),                                      
+      48 +        isExpiringSoon: true                                   
+      49      )
+      50      .padding()
+      51  }
+
+⏺ Update(TodayTasks/View/TodayView.swift)
+  ⎿  Added 1 line, removed 1 line
+      23                      List {
+      24                          Section {
+      25                              ForEach(viewModel.activeTasks) { ta
+          sk in
+      26 -                                ActiveTaskRowView(task: task)  
+      26 +                                ActiveTaskRowView(task: task, i
+         +sExpiringSoon: viewModel.isExpiringSoon(task))                 
+      27                                      .onTapGesture {
+      28                                          UIImpactFeedbackGenerat
+          or(style: .light).impactOccurred()
+      29                                          viewModel.toggleComplet
+          e(task)
+
+⏺ Done. Added isExpiringSoon(_:) on TodayViewModel (true when expiry is within 2
+   hours and not yet past), and ActiveTaskRowView now stacks the title with a
+  red "Expires in two hours" badge when that flag is true. TodayView passes the
+  value in.
+
+✻ Brewed for 43s
+
+❯ For ExpiredView, make a vstack for title and Expired At hh:mm am/pm, if it    
+  was a previous day task, the expiration time says Expired Yesterday           
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ Write(TodayTasks/View/TaskRows/ExpiredTaskRowView.swift)
+  ⎿  Error writing file
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ Update(TodayTasks/View/TaskRows/ExpiredTaskRowView.swift)
+  ⎿  Added 16 lines, removed 2 lines
+      10  struct ExpiredTaskRowView: View {
+      11      let task: Task
+      12  
+      13 +    private var expirationText: String {                       
+      14 +        if Calendar.current.isDateInYesterday(task.expireTime) 
+         +{                                                              
+      15 +            return "Expired Yesterday"                         
+      16 +        }                                                      
+      17 +        let formatter = DateFormatter()                        
+      18 +        formatter.dateFormat = "h:mm a"                        
+      19 +        return "Expired At \(formatter.string(from: task.expire
+         +Time))"                                                        
+      20 +    }                                                          
+      21 +                                                               
+      22      var body: some View {
+      23          HStack(spacing: 12) {
+      24              Image(systemName: "xmark.circle")
+      25                  .font(.title2)
+      26                  .foregroundStyle(.gray)
+      18 -            Text(task.title)                                   
+      19 -                .foregroundStyle(.gray)                        
+      27 +            VStack(alignment: .leading, spacing: 4) {          
+      28 +                Text(task.title)                               
+      29 +                    .foregroundStyle(.gray)                    
+      30 +                Text(expirationText)                           
+      31 +                    .font(.caption)                            
+      32 +                    .foregroundStyle(.secondary)               
+      33 +            }                                                  
+      34              Spacer()
+      35          }
+      36          .padding(.horizontal, 16)
+
+⏺ Re-reading your instruction: "previous day task" probably means any task not
+  from today. Let me adjust:
+
+⏺ Update(TodayTasks/View/TaskRows/ExpiredTaskRowView.swift)
+  ⎿  Added 1 line, removed 1 line
+      11      let task: Task
+      12  
+      13      private var expirationText: String {
+      14 -        if Calendar.current.isDateInYesterday(task.expireTime) 
+         -{                                                              
+      14 +        if !Calendar.current.isDateInToday(task.createdTime) { 
+      15              return "Expired Yesterday"
+      16          }
+      17          let formatter = DateFormatter()
+
+⏺ Done. ExpiredTaskRowView now shows a VStack with the title and an expiration
+  label — "Expired At h:mm a" for today's tasks, "Expired Yesterday" for any
+  previous-day task.
+
+✻ Cogitated for 37s
+
+❯ the vm already has a property that says expiredPreviousDays                   
+
+⏺ Good point — let me use that instead of duplicating the date check in the row.
+
+⏺ Update(TodayTasks/View/TaskRows/ExpiredTaskRowView.swift)
+  ⎿  Added 2 lines, removed 1 line
+       9  
+      10  struct ExpiredTaskRowView: View {
+      11      let task: Task
+      12 +    let isPreviousDay: Bool                                    
+      13  
+      14      private var expirationText: String {
+      14 -        if !Calendar.current.isDateInToday(task.createdTime) { 
+      15 +        if isPreviousDay {                                     
+      16              return "Expired Yesterday"
+      17          }
+      18          let formatter = DateFormatter()
+
+⏺ Update(TodayTasks/View/TaskRows/ExpiredTaskRowView.swift)
+  ⎿  Added 2 lines, removed 1 line
+      48          task: Task(
+      49              title: "Call dentist",
+      50              expireTime: Date().addingTimeInterval(-3600)
+      51 -        )                                                      
+      51 +        ),                                                     
+      52 +        isPreviousDay: false                                   
+      53      )
+      54      .padding()
+      55  }
+⏺ Update(TodayTasks/View/ExpiredView.swift)
+  ⎿  File must be read first
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ Update(TodayTasks/View/ExpiredView.swift)
+  ⎿  Added 1 line, removed 1 line
+      25                              .foregroundStyle(.secondary)
+      26  
+      27                          ForEach(viewModel.expiredToday) { task 
+          in
+      28 -                            ExpiredTaskRowView(task: task)     
+      28 +                            ExpiredTaskRowView(task: task, isPr
+         +eviousDay: false)                                              
+      29                          }
+      30  
+      31                          Text("Previous Days")
+
+⏺ Update(TodayTasks/View/ExpiredView.swift)
+  ⎿  Added 1 line, removed 1 line
+      34                              .padding(.top, 16)
+      35  
+      36                          ForEach(viewModel.expiredPreviousDays) 
+          { task in
+      37 -                            ExpiredTaskRowView(task: task)     
+      37 +                            ExpiredTaskRowView(task: task, isPr
+         +eviousDay: true)                                               
+      38                          }
+      39                      }
+      40                      .padding(.horizontal, 16)
+
+⏺ Done. ExpiredTaskRowView now takes isPreviousDay, sourced from the VM's
+  existing expiredToday / expiredPreviousDays partitions rather than recomputing
+   the date.
+
+✻ Brewed for 34s
+
+❯ write some dummy data on vm init and save it so I can test the UI             
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ Update(TodayTasks/ViewModel/TodayViewModel.swift)
+  ⎿  Added 35 lines
+      21              print("Failed to load tasks: \(error)")
+      22              self.tasks = []
+      23          }
+      24 +        if tasks.isEmpty {                                     
+      25 +            tasks = Self.dummyTasks()                          
+      26 +            saveToStore()                                      
+      27 +        }                                                      
+      28          for task in tasks {
+      29              NotificationManager.shared.scheduleExpirationRemind
+          er(for: task)
+      30          }
+      31      }
+      32  
+      33 +    private static func dummyTasks() -> [Task] {               
+      34 +        let now = Date()                                       
+      35 +        let yesterday = Calendar.current.date(byAdding: .day, v
+         +alue: -1, to: now) ?? now                                      
+      36 +        let twoDaysAgo = Calendar.current.date(byAdding: .day, 
+         +value: -2, to: now) ?? now                                     
+      37 +        return [                                               
+      38 +            Task(title: "Drink water", expireTime: now.addingTi
+         +meInterval(60 * 30)),                                          
+      39 +            Task(title: "Reply to Sarah's email", expireTime: n
+         +ow.addingTimeInterval(60 * 60)),                               
+      40 +            Task(title: "Walk the dog", expireTime: now.addingT
+         +imeInterval(60 * 60 * 5)),                                     
+      41 +            Task(title: "Read a chapter", expireTime: now.addin
+         +gTimeInterval(60 * 60 * 8)),                                   
+      42 +            Task(                                              
+      43 +                title: "Morning stretch",                      
+      44 +                expireTime: now.addingTimeInterval(60 * 60 * 9)
+         +,                                                              
+      45 +                isCompleted: true                              
+      46 +            ),                                                 
+      47 +            Task(                                              
+      48 +                title: "Submit timesheet",                     
+      49 +                expireTime: now.addingTimeInterval(-60 * 60 * 2
+         +)                                                              
+      50 +            ),                                                 
+      51 +            Task(                                              
+      52 +                title: "Call dentist",                         
+      53 +                createdTime: yesterday,                        
+      54 +                expireTime: yesterday.addingTimeInterval(60 * 6
+         +0 * 8)                                                         
+      55 +            ),                                                 
+      56 +            Task(                                              
+      57 +                title: "Pick up dry cleaning",                 
+      58 +                createdTime: twoDaysAgo,                       
+      59 +                expireTime: twoDaysAgo.addingTimeInterval(60 * 
+         +60 * 6)                                                        
+      60 +            ),                                                 
+      61 +        ]                                                      
+      62 +    }                                                          
+      63 +                                                               
+      64      var activeTasks: [Task] {
+      65          let now = Date()
+      66          return tasks.filter { task in
+
+⏺ Done. On init, if the store is empty, the VM seeds 8 dummy tasks (active,
+  expiring-soon, completed, expired-today, and expired-previous-day) and saves
+  them. Delete the app or clear the store to re-seed.
+
+✻ Crunched for 18s
+
+❯ under the title Today, add today's date with smaller text                     
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ Update(TodayTasks/View/TodayView.swift)
+  ⎿  Added 6 lines
+      12      @State private var isShowingAddSheet = false
+      13      @State private var isShowingCelebration = false
+      14  
+      15 +    private var todayDateString: String {                      
+      16 +        let formatter = DateFormatter()                        
+      17 +        formatter.dateFormat = "EEEE, MMM d"                   
+      18 +        return formatter.string(from: Date())                  
+      19 +    }                                                          
+      20 +                                                               
+      21      var body: some View {
+      22          NavigationStack {
+      23              ZStack {
+
+⏺ Update(TodayTasks/View/TodayView.swift)
+  ⎿  Added 10 lines
+       91                  }
+       92              }
+       93              .navigationTitle("Today")
+       94 +            .safeAreaInset(edge: .top, spacing: 0) {          
+       95 +                HStack {                                      
+       96 +                    Text(todayDateString)                     
+       97 +                        .font(.subheadline)                   
+       98 +                        .foregroundStyle(.secondary)          
+       99 +                    Spacer()                                  
+      100 +                }                                             
+      101 +                .padding(.horizontal, 20)                     
+      102 +                .padding(.bottom, 8)                          
+      103 +            }                                                 
+      104              .sheet(isPresented: $isShowingAddSheet) {
+      105                  AddTaskView(viewModel: viewModel)
+      106                      .presentationDetents([.height(260)])
+
+⏺ Added today's date (e.g. "Thursday, May 21") as a subheadline below the
+  "Today" nav title via a top safe-area inset.
+
+✻ Cogitated for 17s

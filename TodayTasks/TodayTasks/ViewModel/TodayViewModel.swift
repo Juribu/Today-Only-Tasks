@@ -21,6 +21,7 @@ final class TodayViewModel: ObservableObject {
             print("Failed to load tasks: \(error)")
             self.tasks = []
         }
+
         for task in tasks {
             NotificationManager.shared.scheduleExpirationReminder(for: task)
         }
@@ -55,6 +56,12 @@ final class TodayViewModel: ObservableObject {
 
     var expiredPreviousDays: [Task] {
         expiredTasks.filter { !Calendar.current.isDateInToday($0.createdTime) }
+    }
+
+    func isExpiringSoon(_ task: Task) -> Bool {
+        let now = Date()
+        guard task.expireTime > now else { return false }
+        return task.expireTime.timeIntervalSince(now) <= 2 * 60 * 60
     }
 
     func saveToStore() {
