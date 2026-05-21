@@ -26,3 +26,15 @@
 
 # Anything you got stuck on and how you worked through it
 - I got stuck when XCode threw me an error related @StateObject ownership, I instantiated the viewModel in the App file, but I also delcared it as a private @StateObject in root contentView, which XCode would instantiated a second time, I quickly realized that it should be a non private @ObservedObject in contentView, since it was already instantiated upstream in the Root App. So I resolved it with the rule of making that viewModel a @StateObject in the App file for single ownership and injecting it everywhere as @ObservedObject.
+
+# AI Usage Summary
+I defined the architecture and made key decisions myself, I my prompts were mostly structured like this:
+
+Write ...., I already have ... so don't worry about ..., include:
+1. in aView, do this
+2. in bView, do this
+3. in cView, do this
+
+Thinigs I had to correct:
+- I pushed back when AI wrote new logic in the view that could have just reused existing logic. For example, the vm we already have expiredPreviousDays, and Claude tried to rederive the logic in ExpiredTaskRowView, I told it the check was already checked in vm and use it
+- I reviewed the logic for filtering tasks, and corrected claude codes logic when it went wrong. For example: it filtered expired tasks without a same day check, which would have put all expired tasks from past days in the TodayView, I manually corrected those kind of mistakes and stay aware of these logic errors.
