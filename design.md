@@ -1,6 +1,7 @@
 Design by Stitch:
 
-![1779306261795](https://file+.vscode-resource.vscode-cdn.net/Users/jay/Desktop/TakeHome/Today-Only-Tasks/image/design/1779306261795.png)
+<img width="687" height="503" alt="Screenshot 2026-05-20 at 10 48 08 PM" src="https://github.com/user-attachments/assets/99d1b042-dc93-44ca-88f7-0e077ea13f13" />
+
 
 Prompt to Sitch:
 
