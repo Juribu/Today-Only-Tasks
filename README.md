@@ -1,6 +1,6 @@
 # Today-Only-TasKS
 
-# overall approach
+# Overall approach
 
 1. Identified what are needed and architect the directory structure (Model/View/ViewModel/Persistence)
 2. Started with creating Task Model
@@ -8,7 +8,7 @@
 4. Built the ViewModel and the Business logic
 5. Laid out the basic UI
 6. Hook up business logic to UI
-## Optional enhancements
+### Optional enhancements
 7. Set up noification for firing notifs before the end of day
 8. Enhance UI: Haptic feedback
 9. Celebration for competion
