@@ -30,12 +30,7 @@
 # AI Usage Summary 
 [conversation history](https://github.com/Juribu/Today-Only-Tasks/blob/main/TodayTasks/CluadeChatCombined.txt)
 
-I defined the architecture and made key decisions myself, I my prompts were mostly structured like this:
-
-Write ...., I already have ... so don't worry about ..., include:
-1. in aView, do this
-2. in bView, do this
-3. in cView, do this
+I defined the architecture and made key decisions myself, most of my prompt would include target file, specs, constraints, cues for where the logic lives, and reference to existing file.
 
 Thinigs I had to correct:
 - I pushed back when AI wrote new logic in the view that could have just reused existing logic. For example, the vm we already have expiredPreviousDays, and Claude tried to rederive the logic in ExpiredTaskRowView, I told it the check was already checked in vm and use it
